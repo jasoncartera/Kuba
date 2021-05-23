@@ -440,7 +440,7 @@ class InvalidName(Exception):
     """ Raised if an invalid player name is used"""
     pass
 
-def main():
+if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
     print(game.get_marble_count())
     print(game.make_move('Jason', (0,0), 'R'))
@@ -450,6 +450,3 @@ def main():
     print(game.make_move('Jason', (1,0), 'B'))
     print(game.make_move('Sunny', (0,3), 'B'))
     game.board.print_board()
-
-if __name__ == '__main__':
-    main()
