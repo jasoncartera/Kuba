@@ -76,6 +76,15 @@ class Board:
         """ The board property"""
         return self._board
 
+    def update_board(self, coord, dir):
+        """
+        Updates the board based on a given coordinate and direction
+        :param coord: coordinate on the board that is being played
+        :param dir: direction the coordinate will be 'pushed'
+        :return: None
+        """
+        self.board[coord[0]][coord[1]] = None
+
     def print_board(self):
         """ Prints the current state of the board"""
 
@@ -97,11 +106,15 @@ class KubaGame:
 
         :param player_a: tuple (player name, marble color)
         :param player_b: tuple (player name, marble color)
+
+        ko_rule_move keeps track of which move is invalid per the Ko Rule
         """
 
         self._player_a = Player(player_a[0], player_a[1])
         self._player_b = Player(player_b[0], player_a[1])
+        self._players = {player_a[0]: self._player_a, player_b[0]: self._player_b}
         self._board = Board()
+        self._ko_rule_move = None
 
     @property
     def board(self):
@@ -118,6 +131,20 @@ class KubaGame:
         """Player_b property"""
         return self._player_b
 
+    @property
+    def players(self):
+        """Players property"""
+        return self._players
+
+    @property
+    def ko_rule_move(self):
+        """ Ko rule property"""
+        return self._ko_rule_move
+
+    @ko_rule_move.setter
+    def ko_rule_move(self, move):
+        self._ko_rule_move = move
+
     def get_current_turn(self):
         """
         Gets the name of the player who's turn it is. Returns none if no player has moved.
@@ -131,17 +158,138 @@ class KubaGame:
         elif self.player_b.is_turn:
             return self.player_b.name
 
-    def make_move(self, player, coords, dir):
+    def make_move(self, player, coord, dir):
         """
         Makes a move on the board.
 
         :param player: Name of the player to make the move
-        :param coords: Coordinates of the marble that is going to be moved.
+        :param coord: Coordinates of the marble that is going to be moved.
         :param dir: Direction that the marble will be moved. Valid directions are Left (L), Right (R), Backward (B), and Forward (F)
         :return: True if move is successful, False if not
         """
 
-        pass
+        # If this is the first move establish player turns
+        if self.get_current_turn() is None:
+            if player == self.player_a.name:
+                self.player_a.is_turn = True
+                self.player_b.is_turn = False
+            else:
+                self.player_b.is_turn = True
+                self.player_a.is_turn = False
+
+        # If there is a winner
+        if self.get_winner():
+            return False
+        # If coord out of bounds
+        if coord[0] > 6 or coord[1] > 6:
+            return False
+        # If it is not the players turn
+        if player != self.get_current_turn():
+            return False
+        if dir not in self.valid_move_dir(coord):
+            return False
+        # If move would be the opposite of last move return false
+        if (coord, dir) == self.ko_rule_move:
+            return False
+        # Need to account for if player is pushing the wrong color
+        if self.board.board[coord[0]][coord[1]] != self.players[player].color:
+            return False
+        # Need to account for if player will push their own color off
+
+        # If we made it here, update the ko rule move and make the move
+        self.update_ko_rule((coord, dir))
+
+        # Make the move - Need to update captures and marble losses
+        self.board.update_board(coord, dir)
+
+        # Update player turns after making the move
+        if player == self.player_a.name:
+            self.player_a.is_turn = False
+            self.player_b.is_turn = True
+        else:
+            self.player_a.is_turn = True
+            self.player_b.is_turn = False
+
+        return True
+
+    def valid_move_dir(self, coord):
+        """
+        Returns a set of valid move directions for a coordinate
+        :param coords: Coordinate of proposed move
+        :return: set of valid directions to move
+        """
+
+        valid_dir = set()
+        r,c = coord
+        if c == 0:
+            valid_dir.add('R')
+        if c == 6:
+            valid_dir.add('L')
+        if r == 0:
+            valid_dir.add('B')
+        if r == 6:
+            valid_dir.add('F')
+        if r-1 >= 0 and self.board.board[r-1][c] is None:
+            valid_dir.add('B')
+        if r+1 <= 6 and self.board.board[r+1][c] is None:
+            valid_dir.add('F')
+        if c-1 >= 0 and self.board.board[r][c-1] is None:
+            valid_dir.add('R')
+        if c+1 <= 6 and self.board.board[r][c+1] is None:
+            valid_dir.add('L')
+
+        return valid_dir
+
+    def update_ko_rule(self, move):
+        """
+        Determines what move is forbidden per the Ko rule. Calculated before the move in make_move is made
+        :param move: coordinates of move and the direction from make_move
+        :return: self.ko_rule_move
+        """
+        if move[1] == 'R':
+            # To iterate through column
+            col = move[0][1]
+            # if move will result in marble dropping off, Ko rule doesn't apply
+            if self.board.board[move[0][0]][6] is not None:
+                self.ko_rule_move = None
+                return self.ko_rule_move
+            # Before making the move in make_move, determine when the row or col is None. This is were the marble row
+            # or column will terminate after the move is made.
+            while self.board.board[move[0][0][col]] is not None:
+                col += 1
+            self.ko_rule_move = ((move[0][0], col), 'L')
+            return self.ko_rule_move
+
+        if move[1] == 'L':
+            col = move[0][1]
+            if self.board.board[move[0][0]][0] is not None:
+                self.ko_rule_move = None
+                return self.ko_rule_move
+            while col is not None:
+                col -= 1
+            self.ko_rule_move = ((move[0][0], col), 'R')
+            return self.ko_rule_move
+
+        if move[1] == 'B':
+            row = move[0][0]
+            if self.board.board[6][move[0][1]] is not None:
+                self.ko_rule_move = None
+                return self.ko_rule_move
+            while row is not None:
+                row += 1
+            self.ko_rule_move = ((row, move[0][1]), 'F')
+            return self.ko_rule_move
+
+        if move[1] == 'F':
+            row = move[0][0]
+            if self.board.board[0][move[0][1]] is not None:
+                self.ko_rule_move = None
+                return self.ko_rule_move
+            while row is not None:
+                row -= 1
+            self.ko_rule_move = ((row, move[0][1]), 'B')
+            return self.ko_rule_move
+
 
     def get_winner(self):
         """
@@ -158,6 +306,8 @@ class KubaGame:
             return self.player_a
         else:
             return None
+
+        # Need to account for if there are no legal moves left for the player
 
     def get_captured(self, player):
         """
@@ -187,7 +337,7 @@ class KubaGame:
     def get_marble_count(self):
         """
 
-        :return: THe number of white, black, and red marbles on the board as a tuple in (W, B, R) order
+        :return: The number of white, black, and red marbles on the board as a tuple in (W, B, R) order
         """
 
         if self.player_a.color == 'W':
@@ -197,7 +347,39 @@ class KubaGame:
             player_black = self.player_a
             player_white = self.player_b
 
+        # Calculates the number of marbles left based on how many marbles each player has.
+        # Since the Board class doesn't care about how many marbles there are, I thought it was more
+        # appropriate to have the Player class keep track of this.
         return (player_white.marbles_left, player_black.marbles_left, 13-player_black.red_captured-player_white.red_captured)
+
+#Not using these right now...
+class Marble:
+    """ Represents a marble"""
+
+    def __init__(self):
+        """
+        _valid_directions is a dictionary of all valid directions for a marble
+        """
+        self._valid_directions = dict()
+
+class RedMarble(Marble):
+    """ Represents a red marble"""
+    def __init__(self):
+        super().__init__()
+        self._color = 'R'
+
+class BlackMarble(Marble):
+    """ Represents a black marble"""
+    def __init__(self):
+        super().__init__()
+        self._color = 'B'
+
+class WhiteMarble(Marble):
+    """ Represents a white marble"""
+    def __init__(self):
+        super().__init__()
+        self._color = 'W'
+
 
 class InvalidName(Exception):
     """ Raised if an invalid player name is used"""
@@ -206,5 +388,8 @@ class InvalidName(Exception):
 def main():
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
     print(game.get_marble_count())
+    print(game.make_move('Jason', (0,0), 'R'))
+    game.board.print_board()
+
 if __name__ == '__main__':
     main()
