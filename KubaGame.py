@@ -83,6 +83,58 @@ class Board:
         :param dir: direction the coordinate will be 'pushed'
         :return: None
         """
+
+        if dir == 'R':
+            # To iterate through column
+            col = coord[1]
+            marbles = []
+            # Create a list of the marbles in the chain being pushed
+            while self.board[coord[0]][col] is not None:
+                marbles.append(self.board[coord[0]][col])
+                col += 1
+            for marble in marbles[::-1]:
+                self.board[coord[0]][col] = marble
+                col -= 1
+
+        if dir == 'L':
+            # To iterate through column
+            col = coord[1]
+            marbles = []
+            # Create a list of the marbles in the chain being pushed
+            while self.board[coord[0]][col] is not None:
+                marbles.append(self.board[coord[0]][col])
+                col -= 1
+
+            for marble in marbles[::-1]:
+                self.board[coord[0]][col] = marble
+                col += 1
+
+        if dir == 'B':
+            # To iterate through column
+            row = coord[0]
+            marbles = []
+            # Create a list of the marbles in the chain being pushed
+            while self.board[row][coord[1]] is not None:
+                marbles.append(self.board[row][coord[1]])
+                row += 1
+
+            for marble in marbles[::-1]:
+                self.board[row][coord[1]] = marble
+                row -= 1
+
+        if dir == 'F':
+            # To iterate through column
+            row = coord[0]
+            marbles = []
+            # Create a list of the marbles in the chain being pushed
+            while self.board[row][coord[1]] is not None:
+                marbles.append(self.board[row][coord[1]])
+                row -= 1
+
+            for marble in marbles[::-1]:
+                self.board[row][coord[1]] = marble
+                row += 1
+
         self.board[coord[0]][coord[1]] = None
 
     def print_board(self):
@@ -111,7 +163,7 @@ class KubaGame:
         """
 
         self._player_a = Player(player_a[0], player_a[1])
-        self._player_b = Player(player_b[0], player_a[1])
+        self._player_b = Player(player_b[0], player_b[1])
         self._players = {player_a[0]: self._player_a, player_b[0]: self._player_b}
         self._board = Board()
         self._ko_rule_move = None
@@ -194,7 +246,7 @@ class KubaGame:
         # Need to account for if player is pushing the wrong color
         if self.board.board[coord[0]][coord[1]] != self.players[player].color:
             return False
-        # Need to account for if player will push their own color off
+        # TODO Need to account for if player will push their own color off
 
         # If we made it here, update the ko rule move and make the move
         self.update_ko_rule((coord, dir))
@@ -249,47 +301,50 @@ class KubaGame:
         if move[1] == 'R':
             # To iterate through column
             col = move[0][1]
-            # if move will result in marble dropping off, Ko rule doesn't apply
-            if self.board.board[move[0][0]][6] is not None:
-                self.ko_rule_move = None
-                return self.ko_rule_move
             # Before making the move in make_move, determine when the row or col is None. This is were the marble row
             # or column will terminate after the move is made.
-            while self.board.board[move[0][0][col]] is not None:
-                col += 1
-            self.ko_rule_move = ((move[0][0], col), 'L')
-            return self.ko_rule_move
+            try:
+                while self.board.board[move[0][0]][col] is not None:
+                    col += 1
+                self.ko_rule_move = ((move[0][0], col), 'L')
+                return self.ko_rule_move
+            # If move will result in marble dropping off, Ko rule doesn't apply
+            except IndexError:
+                self.ko_rule_move = None
+                return self.ko_rule_move
 
         if move[1] == 'L':
             col = move[0][1]
-            if self.board.board[move[0][0]][0] is not None:
+            try:
+                while self.board.board[move[0][0]][col] is not None:
+                    col -= 1
+                self.ko_rule_move = ((move[0][0], col), 'R')
+                return self.ko_rule_move
+            except IndexError:
                 self.ko_rule_move = None
                 return self.ko_rule_move
-            while col is not None:
-                col -= 1
-            self.ko_rule_move = ((move[0][0], col), 'R')
-            return self.ko_rule_move
 
         if move[1] == 'B':
             row = move[0][0]
-            if self.board.board[6][move[0][1]] is not None:
+            try:
+                while self.board.board[row][move[0][1]] is not None:
+                    row += 1
+                self.ko_rule_move = ((row, move[0][1]), 'F')
+                return self.ko_rule_move
+            except IndexError:
                 self.ko_rule_move = None
                 return self.ko_rule_move
-            while row is not None:
-                row += 1
-            self.ko_rule_move = ((row, move[0][1]), 'F')
-            return self.ko_rule_move
 
         if move[1] == 'F':
             row = move[0][0]
-            if self.board.board[0][move[0][1]] is not None:
+            try:
+                while self.board.board[row][move[0][1]] is not None:
+                    row -= 1
+                self.ko_rule_move = ((row, move[0][1]), 'B')
+                return self.ko_rule_move
+            except IndexError:
                 self.ko_rule_move = None
                 return self.ko_rule_move
-            while row is not None:
-                row -= 1
-            self.ko_rule_move = ((row, move[0][1]), 'B')
-            return self.ko_rule_move
-
 
     def get_winner(self):
         """
@@ -307,7 +362,7 @@ class KubaGame:
         else:
             return None
 
-        # Need to account for if there are no legal moves left for the player
+        # TODO Need to account for if there are no legal moves left for the player
 
     def get_captured(self, player):
         """
@@ -389,6 +444,11 @@ def main():
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
     print(game.get_marble_count())
     print(game.make_move('Jason', (0,0), 'R'))
+    print(game.make_move('Sunny', (0,6), 'L'))
+    print(game.make_move('Jason', (0,1), 'R'))
+    print(game.make_move('Sunny', (0, 5), 'L'))
+    print(game.make_move('Jason', (1,0), 'B'))
+    print(game.make_move('Sunny', (0,3), 'B'))
     game.board.print_board()
 
 if __name__ == '__main__':
