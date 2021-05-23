@@ -384,10 +384,10 @@ class KubaGame:
         :return: The color of marble at the coordinate or X if no marble is located at the coord.
         """
 
-        if self.board[coords[0]][coords[1]] is None:
+        if self.board.board[coords[0]][coords[1]] is None:
             return 'X'
         else:
-            return self.board[coords[0]][coords[1]]
+            return self.board.board[coords[0]][coords[1]]
 
     def get_marble_count(self):
         """
@@ -443,6 +443,7 @@ class InvalidName(Exception):
 if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
     print(game.get_marble_count())
+    print(game.get_marble((0,0)))
     print(game.make_move('Jason', (0,0), 'R'))
     print(game.make_move('Sunny', (0,6), 'L'))
     print(game.make_move('Jason', (0,1), 'R'))
