@@ -85,16 +85,15 @@ class Player:
 
         return self._available_moves
 
-#Not using right now...
 class Marble:
     """ Represents a marble """
 
     def __init__(self, pos):
         """
-        _valid_directions is a dictionary of all valid directions for a marble
+        A marble
+        :param pos: current position of the marble on the board
         """
         self._pos = pos
-        self._valid_directions = dict()
 
     @property
     def pos(self):
@@ -186,7 +185,8 @@ class Board:
                 marbles.append(self.board[coord[0]][col])
                 col += 1
 
-            # Update position of marbles
+            # Update position of marbles and pop final marble in marbles since it will be pushed off if already at
+            # the board edge
             for marble in marbles:
                 if marble.pos[1] == 6:
                     pushed_off = marbles.pop()
