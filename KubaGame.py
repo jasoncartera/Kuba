@@ -218,7 +218,7 @@ class Board:
 
             self.board[coord[0]][coord[1]] = None
             return pushed_off
-T
+
         if dir == 'B':
             row = coord[0]
             marbles = []
