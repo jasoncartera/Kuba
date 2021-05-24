@@ -9,3 +9,4 @@ class TestKubaGame(unittest.TestCase):
 
     def tearDown(self) -> None:
         pass
+

@@ -15,7 +15,6 @@ class Player:
         """
         self._name = name
         self._color = color
-        self._available_moves = set()
         self._is_turn = None
         self._red_captured = 0
         self._marbles_left = 8
@@ -66,38 +65,25 @@ class Player:
         :return: set of valid moves as tuple (row, col)
         """
         board = board.board
+        available_moves = set()
 
         for row in range(len(board)):
             for col in range(len(board[row])):
                 if board[row][col] == self.color:
                     if row < 6:
                         if board[row+1][col] is None:
-                            self._available_moves.add((row+1, col))
+                            available_moves.add((row+1, col))
                     if row > 0:
                         if board[row-1][col] is None:
-                            self._available_moves.add((row-1, col))
+                            available_moves.add((row-1, col))
                     if col < 6:
                         if board[row][col+1] is None:
-                            self._available_moves.add((row, col+1))
+                            available_moves.add((row, col+1))
                     if col > 0:
                         if board[row][col-1] is None:
-                            self._available_moves.add((row, col-1))
+                            available_moves.add((row, col-1))
 
-        return self._available_moves
-
-# #Not using right now...
-# class Marble:
-#     """ Represents a marble"""
-#
-#     def __init__(self, start_pos, color):
-#         """
-#         _valid_directions is a dictionary of all valid directions for a marble
-#         """
-#         self._start_pos = start_pos
-#         self._valid_directions = dict()
-#
-#         def valid_directions(self, board):
-#             pass
+        return available_moves
 
 class Board:
     """ Represents a Kuba board"""
@@ -450,13 +436,13 @@ class KubaGame:
         elif self.player_b.red_captured == 7:
             return self.player_b.name
         elif self.player_a.marbles_left == 0 and self.player_b.marbles_left > 0:
-            return self.player_b
+            return self.player_b.name
         elif self.player_b.marbles_left == 0 and self.player_a.marbles_left > 0:
-            return self.player_a
-        elif self.player_a.available_moves(self.board) is False:
-            return self.player_b
-        elif self.player_b.available_moves(self.board) is False:
-            return self.player_a
+            return self.player_a.name
+        elif len(self.player_a.available_moves(self.board)) == 0:
+            return self.player_b.name
+        elif len(self.player_b.available_moves(self.board)) == 0:
+            return self.player_a.name
         else:
             return None
 
@@ -510,9 +496,9 @@ class InvalidName(Exception):
 
 if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
-    game.make_move('Jason', (5,6), 'L')
-    game.make_move('Sunny', (6,0), 'R')
-    game.make_move('Jason', (5,5), 'L')
+    print(game.make_move('Jason', (0,0), 'R'))
+    print(game.make_move('Sunny', (1,1), 'F'))
+    print(game.make_move('Jason', (5,5), 'L'))
     game.make_move('Sunny', (6,1), 'R')
     game.make_move('Jason', (5,4), 'L')
     game.make_move('Sunny', (0,5), 'B')
