@@ -15,9 +15,11 @@ class Player:
         """
         self._name = name
         self._color = color
+        self._available_moves = set()
         self._is_turn = None
         self._red_captured = 0
         self._marbles_left = 8
+
 
     @property
     def name(self):
@@ -57,8 +59,31 @@ class Player:
         """ Updates the number of captured red marbles by one"""
         self._red_captured += 1
 
-    def available_moves(self):
-        valid_moves = set()
+    def available_moves(self, board):
+        """
+        Determines moves a player has avalaible
+        :param board: KubaGame.Board
+        :return: set of valid moves as tuple (row, col)
+        """
+        board = board.board
+
+        for row in range(len(board)):
+            for col in range(len(board[row])):
+                if board[row][col] == self.color:
+                    if row < 6:
+                        if board[row+1][col] is None:
+                            self._available_moves.add((row+1, col))
+                    if row > 0:
+                        if board[row-1][col] is None:
+                            self._available_moves.add((row-1, col))
+                    if col < 6:
+                        if board[row][col+1] is None:
+                            self._available_moves.add((row, col+1))
+                    if col > 0:
+                        if board[row][col-1] is None:
+                            self._available_moves.add((row, col-1))
+
+        return self._available_moves
 
 # #Not using right now...
 # class Marble:
@@ -431,10 +456,13 @@ class KubaGame:
             return self.player_b
         elif self.player_b.marbles_left == 0 and self.player_a.marbles_left > 0:
             return self.player_a
+        elif self.player_a.available_moves(self.board) is False:
+            return self.player_b
+        elif self.player_b.available_moves(self.board) is False:
+            return self.player_a
         else:
             return None
 
-        # TODO Need to account for if there are no legal moves left for the player
 
 
     def get_captured(self, player):
