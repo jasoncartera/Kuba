@@ -297,10 +297,10 @@ class KubaGame:
         self.update_ko_rule((coord, dir))
 
         # Make the move - Need to update captures and marble losses
-        return_move = self.board.update_board(coord, dir)
+        captured_marble = self.board.update_board(coord, dir)
 
         #Revert board back to before the move was made and return False
-        if return_move == self.players[player].color:
+        if captured_marble == self.players[player].color:
             self.board.board = previous_board
             return False
 
@@ -312,7 +312,15 @@ class KubaGame:
             self.player_a.is_turn = True
             self.player_b.is_turn = False
 
-        #TODO update player marble count
+        # Update marbles on board
+        if captured_marble == 'R':
+            self.players[player].update_red_captured()
+        if self.player_a.is_turn and captured_marble == self.player_b.color:
+            self.player_b.update_marbles_left()
+        if self.player_b.is_turn and captured_marble == self.player_a.color:
+            self.player_a.update_marbles_left()
+
+
         return True
 
     def valid_move_dir(self, coord):
@@ -505,6 +513,4 @@ if __name__ == '__main__':
     game.make_move('Sunny', (1,5), 'L')
     game.make_move('Jason', (5,6), 'L')
     game.make_move('Sunny', (6, 0), 'R')
-    print(game.make_move('Jason', (1,1), 'F'))
-    # print(game.make_move('Sunny', (1, 5), 'B'))
     game.board.print_board()
