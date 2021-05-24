@@ -57,6 +57,9 @@ class Player:
         """ Updates the number of captured red marbles by one"""
         self.red_captured += 1
 
+    def available_moves(self):
+        #TODO determine set of moves that a player can make
+        pass
 
 class Board:
     """ Represents a Kuba board"""
@@ -76,66 +79,103 @@ class Board:
         """ The board property"""
         return self._board
 
+    @board.setter
+    def board(self, update_board):
+        self._board = update_board
+
     def update_board(self, coord, dir):
         """
         Updates the board based on a given coordinate and direction
         :param coord: coordinate on the board that is being played
         :param dir: direction the coordinate will be 'pushed'
-        :return: None
+        :return: Marble no longer in a given row or column if one was pushed off
         """
+
+        pushed_off = None
 
         if dir == 'R':
             # To iterate through column
             col = coord[1]
             marbles = []
             # Create a list of the marbles in the chain being pushed
-            while self.board[coord[0]][col] is not None:
+            while col < len(self.board[0]) and self.board[coord[0]][col] is not None:
                 marbles.append(self.board[coord[0]][col])
                 col += 1
+
+            if col > len(self.board[0])-1:
+                pushed_off = marbles.pop()
+                col += 1
+
             for marble in marbles[::-1]:
                 self.board[coord[0]][col] = marble
                 col -= 1
+
+            self.board[coord[0]][coord[1]] = None
+            return pushed_off
 
         if dir == 'L':
             # To iterate through column
             col = coord[1]
             marbles = []
             # Create a list of the marbles in the chain being pushed
-            while self.board[coord[0]][col] is not None:
+            while col >= 0 and self.board[coord[0]][col] is not None:
                 marbles.append(self.board[coord[0]][col])
                 col -= 1
+
+            if col < 0:
+                pushed_off = marbles.pop()
+                col += 1
 
             for marble in marbles[::-1]:
                 self.board[coord[0]][col] = marble
                 col += 1
 
+            self.board[coord[0]][coord[1]] = None
+            return pushed_off
+
         if dir == 'B':
             # To iterate through column
             row = coord[0]
+            col_before = []
+            for i in range(len(self.board[0])):
+                col_before.append(self.board[i][coord[1]])
+
             marbles = []
             # Create a list of the marbles in the chain being pushed
-            while self.board[row][coord[1]] is not None:
+            while row < len(self.board[0]) and self.board[row][coord[1]] is not None:
                 marbles.append(self.board[row][coord[1]])
                 row += 1
+
+            if row > len(self.board[0])-1:
+                pushed_off = marbles.pop()
+                row -= 1
 
             for marble in marbles[::-1]:
                 self.board[row][coord[1]] = marble
                 row -= 1
+
+            self.board[coord[0]][coord[1]] = None
+            return pushed_off
 
         if dir == 'F':
             # To iterate through column
             row = coord[0]
             marbles = []
             # Create a list of the marbles in the chain being pushed
-            while self.board[row][coord[1]] is not None:
+            while row >= 0 and self.board[row][coord[1]] is not None:
                 marbles.append(self.board[row][coord[1]])
                 row -= 1
+
+            if row < 0:
+                pushed_off = marbles.pop()
+                row += 1
 
             for marble in marbles[::-1]:
                 self.board[row][coord[1]] = marble
                 row += 1
 
-        self.board[coord[0]][coord[1]] = None
+            self.board[coord[0]][coord[1]] = None
+            return pushed_off
 
     def print_board(self):
         """ Prints the current state of the board"""
@@ -210,6 +250,9 @@ class KubaGame:
         elif self.player_b.is_turn:
             return self.player_b.name
 
+    def change_turn(self):
+        pass
+
     def make_move(self, player, coord, dir):
         """
         Makes a move on the board.
@@ -246,13 +289,20 @@ class KubaGame:
         # Need to account for if player is pushing the wrong color
         if self.board.board[coord[0]][coord[1]] != self.players[player].color:
             return False
-        # TODO Need to account for if player will push their own color off
+
+        # Use to revert board to previous state if pushing off players own piece
+        previous_board = [x[:] for x in self.board.board]
 
         # If we made it here, update the ko rule move and make the move
         self.update_ko_rule((coord, dir))
 
         # Make the move - Need to update captures and marble losses
-        self.board.update_board(coord, dir)
+        return_move = self.board.update_board(coord, dir)
+
+        #Revert board back to before the move was made and return False
+        if return_move == self.players[player].color:
+            self.board.board = previous_board
+            return False
 
         # Update player turns after making the move
         if player == self.player_a.name:
@@ -262,6 +312,7 @@ class KubaGame:
             self.player_a.is_turn = True
             self.player_b.is_turn = False
 
+        #TODO update player marble count
         return True
 
     def valid_move_dir(self, coord):
@@ -443,11 +494,17 @@ class InvalidName(Exception):
 if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
     print(game.get_marble_count())
-    print(game.get_marble((0,0)))
-    print(game.make_move('Jason', (0,0), 'R'))
-    print(game.make_move('Sunny', (0,6), 'L'))
-    print(game.make_move('Jason', (0,1), 'R'))
-    print(game.make_move('Sunny', (0, 5), 'L'))
-    print(game.make_move('Jason', (1,0), 'B'))
-    print(game.make_move('Sunny', (0,3), 'B'))
+    print(game.get_marble((4,4)))
+    game.make_move('Jason', (1,0), 'R')
+    game.make_move('Sunny', (0,6), 'L')
+    game.make_move('Jason', (1,2), 'B')
+    game.make_move('Sunny', (0, 5), 'L')
+    game.make_move('Jason', (2,2), 'B')
+    game.make_move('Sunny', (1,6), 'L')
+    game.make_move('Jason', (3,2), 'B')
+    game.make_move('Sunny', (1,5), 'L')
+    game.make_move('Jason', (5,6), 'L')
+    game.make_move('Sunny', (6, 0), 'R')
+    print(game.make_move('Jason', (1,1), 'F'))
+    # print(game.make_move('Sunny', (1, 5), 'B'))
     game.board.print_board()
