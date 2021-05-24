@@ -55,7 +55,7 @@ class Player:
 
     def update_red_captured(self):
         """ Updates the number of captured red marbles by one"""
-        self.red_captured += 1
+        self._red_captured += 1
 
     def available_moves(self):
         #TODO determine set of moves that a player can make
@@ -514,3 +514,4 @@ if __name__ == '__main__':
     game.make_move('Jason', (5,6), 'L')
     game.make_move('Sunny', (6, 0), 'R')
     game.board.print_board()
+    print(game.get_marble_count())
