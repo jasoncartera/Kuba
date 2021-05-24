@@ -69,7 +69,7 @@ class Player:
 
         for row in range(len(board)):
             for col in range(len(board[row])):
-                if board[row][col].color == self.color:
+                if board[row][col] is not None and board[row][col].color == self.color:
                     if row < 6:
                         if board[row+1][col] is None:
                             self._available_moves.add((row+1, col))
@@ -377,16 +377,16 @@ class KubaGame:
         captured_marble = self.board.update_board(coord, dir)
 
         # If player captured their own marble, revert board back to before the move was made and return False
-        if captured_marble.color == self.players[player].color:
+        if captured_marble is not None and captured_marble.color == self.players[player].color:
             self.board.board = previous_board
             return False
 
         # Update marble counts
-        if captured_marble.color == 'R':
+        if captured_marble is not None and captured_marble.color == 'R':
             self.players[player].update_red_captured()
-        if self.player_a.is_turn and captured_marble.color == self.player_b.color:
+        if self.player_a.is_turn and captured_marble is not None and captured_marble.color == self.player_b.color:
             self.player_b.update_marbles_left()
-        if self.player_b.is_turn and captured_marble.color == self.player_a.color:
+        if self.player_b.is_turn and captured_marble is not None and captured_marble.color == self.player_a.color:
             self.player_a.update_marbles_left()
 
         # Update player turns after making the move
@@ -551,53 +551,47 @@ class InvalidName(Exception):
 
 if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
-    game.make_move('Jason', (0,0), 'R')
-    game.make_move('Sunny', (1,6), 'L')
-    game.make_move('Jason', (0,1), 'B')
-    game.make_move('Sunny', (6,1), 'F')
+    game.make_move('Jason', (5,6), 'L')
+    game.make_move('Sunny', (6,0), 'R')
+    game.make_move('Jason', (5,5), 'L')
+    game.make_move('Sunny', (6,1), 'R')
+    game.make_move('Jason', (5,4), 'L')
+    game.make_move('Sunny', (0,5), 'B')
+    game.make_move('Jason', (5,3), 'L')
+    game.make_move('Sunny', (2,5), 'L')
+    game.make_move('Jason', (5,2), 'L')
+    game.make_move('Sunny', (2,4), 'L')
+    game.make_move('Jason', (5,0), 'R')
+    game.make_move('Sunny', (2,3), 'L')
+    game.make_move('Jason', (5, 1), 'R')
+    game.make_move('Sunny', (2,2), 'L')
+    game.make_move('Jason', (6, 6), 'L')
+    game.make_move('Sunny', (2,1), 'L')
+    game.make_move('Jason', (6, 5), 'L')
+    game.make_move('Sunny', (2,0), 'F')
+    game.make_move('Jason', (6, 3), 'F')
+    game.make_move('Sunny', (1,0), 'F')
+    game.make_move('Jason', (5, 3), 'F')
+    game.make_move('Sunny', (0,0), 'B')
+    game.make_move('Jason', (4, 3), 'F')
+    game.make_move('Sunny', (1,0), 'B')
+    game.make_move('Jason', (3, 3), 'F')
+    game.make_move('Sunny', (2,0), 'B')
+    game.make_move('Jason', (2, 3), 'F')
+    game.make_move('Sunny', (3,0), 'R')
+    game.make_move('Jason', (6, 4), 'F')
+    game.make_move('Sunny', (3,1), 'R')
+    game.make_move('Jason', (5, 4), 'F')
+    game.make_move('Sunny', (3,2), 'R')
+    game.make_move('Jason', (4, 4), 'L')
+    game.make_move('Sunny', (3,3), 'R')
+    game.make_move('Jason', (4, 3), 'L')
+    game.make_move('Sunny', (3,4), 'R')
+    game.make_move('Jason', (4, 2), 'L')
+    game.make_move('Sunny', (3,5), 'R')
+    game.get_marble_count()
     game.board.print_board()
-    # game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
-    # game.make_move('Jason', (5,6), 'L')
-    # game.make_move('Sunny', (6,0), 'R')
-    # game.make_move('Jason', (5,5), 'L')
-    # game.make_move('Sunny', (6,1), 'R')
-    # game.make_move('Jason', (5,4), 'L')
-    # game.make_move('Sunny', (0,5), 'B')
-    # game.make_move('Jason', (5,3), 'L')
-    # game.make_move('Sunny', (2,5), 'L')
-    # game.make_move('Jason', (5,2), 'L')
-    # game.make_move('Sunny', (2,4), 'L')
-    # game.make_move('Jason', (5,0), 'R')
-    # game.make_move('Sunny', (2,3), 'L')
-    # game.make_move('Jason', (5, 1), 'R')
-    # game.make_move('Sunny', (2,2), 'L')
-    # game.make_move('Jason', (6, 6), 'L')
-    # game.make_move('Sunny', (2,1), 'L')
-    # game.make_move('Jason', (6, 5), 'L')
-    # game.make_move('Sunny', (2,0), 'F')
-    # game.make_move('Jason', (6, 3), 'F')
-    # game.make_move('Sunny', (1,0), 'F')
-    # game.make_move('Jason', (5, 3), 'F')
-    # game.make_move('Sunny', (0,0), 'B')
-    # game.make_move('Jason', (4, 3), 'F')
-    # game.make_move('Sunny', (1,0), 'B')
-    # game.make_move('Jason', (3, 3), 'F')
-    # game.make_move('Sunny', (2,0), 'B')
-    # game.make_move('Jason', (2, 3), 'F')
-    # game.make_move('Sunny', (3,0), 'R')
-    # game.make_move('Jason', (6, 4), 'F')
-    # game.make_move('Sunny', (3,1), 'R')
-    # game.make_move('Jason', (5, 4), 'F')
-    # game.make_move('Sunny', (3,2), 'R')
-    # game.make_move('Jason', (4, 4), 'L')
-    # game.make_move('Sunny', (3,3), 'R')
-    # game.make_move('Jason', (4, 3), 'L')
-    # game.make_move('Sunny', (3,4), 'R')
-    # game.make_move('Jason', (4, 2), 'L')
-    # game.make_move('Sunny', (3,5), 'R')
-    # game.get_marble_count()
-    # game.board.print_board()
-    # print("Jason red: ", game.get_captured('Jason'))
-    # print("Sunny red: ", game.get_captured('Sunny'))
-    # print("Winner: ", game.get_winner())
-    # print(game.get_marble_count())
+    print("Jason red: ", game.get_captured('Jason'))
+    print("Sunny red: ", game.get_captured('Sunny'))
+    print("Winner: ", game.get_winner())
+    print(game.get_marble_count())
