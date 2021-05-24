@@ -85,39 +85,82 @@ class Player:
 
         return self._available_moves
 
-# #Not using right now...
-# class Marble:
-#     """ Represents a marble"""
-#
-#     def __init__(self, start_pos, color):
-#         """
-#         _valid_directions is a dictionary of all valid directions for a marble
-#         """
-#         self._start_pos = start_pos
-#         self._valid_directions = dict()
-#
-#         def valid_directions(self, board):
-#             pass
-
+#Not using right now...
 class Marble:
-    pass
+    """ Represents a marble """
+
+    def __init__(self, pos):
+        """
+        _valid_directions is a dictionary of all valid directions for a marble
+        """
+        self._pos = pos
+        self._valid_directions = dict()
+
+    @property
+    def pos(self):
+        return self._pos
+
+    @pos.setter
+    def pos(self, new_pos):
+        self._pos = new_pos
+
+    def valid_directions(self, board):
+        pass
+
+
+class WhiteMarble(Marble):
+    """ A white marble"""
+
+    def __init__(self, pos):
+        """ Inits a white marble """
+        super().__init__(pos)
+        self._color = 'W'
+
+    @property
+    def color(self):
+        return self._color
+
+
+class BlackMarble(Marble):
+    """ A white marble"""
+
+    def __init__(self, pos):
+        """ Inits a black marble """
+        super().__init__(pos)
+        self._color = 'B'
+        
+    @property
+    def color(self):
+        return self._color
+
+class RedMarble(Marble):
+    """ A white marble"""
+
+    def __init__(self, pos):
+        """ Inits a red marble """
+        super().__init__(pos)
+        self._color = 'R'
+        
+    @property
+    def color(self):
+        return self._color
 
 class Board:
     """ Represents a Kuba board"""
 
     def __init__(self):
         """ Initializes a board with marbles in the correct starting location"""
-        self._board = [['W', 'W', None, None, None, 'B', 'B'],
-                       ['W', 'W', None, 'R', None, 'B', 'B'],
-                       [None, None, 'R', 'R', 'R', None, None],
-                       [None, 'R', 'R', 'R', 'R', 'R', None],
-                       [None, None, 'R', 'R', 'R', None, None],
-                       ['B', 'B', None, 'R', None, 'W', 'W'],
-                       ['B', 'B', None, None, None, 'W', 'W']]
+        self._board = [[WhiteMarble((0,0)), WhiteMarble((0,1)), None, None, None, BlackMarble((0,5)), BlackMarble((0,6))],
+                       [WhiteMarble((1,0)), WhiteMarble((1,1)), None, RedMarble((1,3)), None, BlackMarble((1,5)), BlackMarble((1,6))],
+                       [None, None, RedMarble((2,2)), RedMarble((2,3)), RedMarble((2,4)), None, None],
+                       [None, RedMarble((3,1)), RedMarble((3,2)), RedMarble((3,3)), RedMarble((3,4)), RedMarble((3,5)), None],
+                       [None, None, RedMarble((4,2)), RedMarble((4,3)), RedMarble((4,4)), None, None],
+                       [BlackMarble((5,0)), BlackMarble((5,1)), None, RedMarble((5,3)), None, WhiteMarble((5,5)), WhiteMarble((5,6))],
+                       [BlackMarble((6,0)), BlackMarble((6,1)), None, None, None, WhiteMarble((6,5)), WhiteMarble((6,6))]]
 
     @property
     def board(self):
-        """ The board property"""
+        """ The board property """
         return self._board
 
     @board.setter
@@ -143,77 +186,73 @@ class Board:
                 marbles.append(self.board[coord[0]][col])
                 col += 1
 
-            if col > len(self.board[0])-1:
-                pushed_off = marbles.pop()
-                col -= 1
+            # Update position of marbles
+            for marble in marbles:
+                if marble.pos[1] == 6:
+                    pushed_off = marbles.pop()
+                else:
+                    marble.pos = marble.pos[0], marble.pos[1] + 1
 
-            for marble in marbles[::-1]:
-                self.board[coord[0]][col] = marble
-                col -= 1
+            # Update the board with new marble positions
+            for marble in marbles:
+                self.board[coord[0]][marble.pos[1]] = marble
 
+            # Set the pushed space to None
             self.board[coord[0]][coord[1]] = None
             return pushed_off
 
         if dir == 'L':
-            # To iterate through column
             col = coord[1]
             marbles = []
-            # Create a list of the marbles in the chain being pushed
             while col >= 0 and self.board[coord[0]][col] is not None:
                 marbles.append(self.board[coord[0]][col])
                 col -= 1
+            for marble in marbles:
+                if marble.pos[1] == 0:
+                    pushed_off = marbles.pop()
+                else:
+                    marble.pos = marble.pos[0], marble.pos[1] - 1
 
-            if col < 0:
-                pushed_off = marbles.pop()
-                col += 1
-
-            for marble in marbles[::-1]:
-                self.board[coord[0]][col] = marble
-                col += 1
+            for marble in marbles:
+                self.board[coord[0]][marble.pos[1]] = marble
 
             self.board[coord[0]][coord[1]] = None
             return pushed_off
 
-        if dir == 'B':
-            # To iterate through column
-            row = coord[0]
-            col_before = []
-            for i in range(len(self.board[0])):
-                col_before.append(self.board[i][coord[1]])
 
+        if dir == 'B':
+            row = coord[0]
             marbles = []
-            # Create a list of the marbles in the chain being pushed
             while row < len(self.board[0]) and self.board[row][coord[1]] is not None:
                 marbles.append(self.board[row][coord[1]])
                 row += 1
 
-            if row > len(self.board[0])-1:
-                pushed_off = marbles.pop()
-                row -= 1
+            for marble in marbles:
+                if marble.pos[0] == 6:
+                    pushed_off = marbles.pop()
+                else:
+                    marble.pos = marble.pos[0] + 1, marble.pos[1]
 
-            for marble in marbles[::-1]:
-                self.board[row][coord[1]] = marble
-                row -= 1
+            for marble in marbles:
+                self.board[marble.pos[0]][coord[1]] = marble
 
             self.board[coord[0]][coord[1]] = None
             return pushed_off
 
         if dir == 'F':
-            # To iterate through column
             row = coord[0]
             marbles = []
-            # Create a list of the marbles in the chain being pushed
-            while row >= 0 and self.board[row][coord[1]] is not None:
+            while row < len(self.board[0]) and self.board[row][coord[1]] is not None:
                 marbles.append(self.board[row][coord[1]])
                 row -= 1
+            for marble in marbles:
+                if marble.pos[0] == 0:
+                    pushed_off = marbles.pop()
+                else:
+                    marble.pos = marble.pos[0] - 1, marble.pos[1]
 
-            if row < 0:
-                pushed_off = marbles.pop()
-                row += 1
-
-            for marble in marbles[::-1]:
-                self.board[row][coord[1]] = marble
-                row += 1
+            for marble in marbles:
+                self.board[marble.pos[0]][coord[1]] = marble
 
             self.board[coord[0]][coord[1]] = None
             return pushed_off
@@ -226,7 +265,7 @@ class Board:
                 if j is None:
                     print('X', end=' ')
                 else:
-                    print(j, end=' ',)
+                    print(j.color, end=' ',)
             print()
 
 class KubaGame:
@@ -326,7 +365,7 @@ class KubaGame:
         if (coord, dir) == self.ko_rule_move:
             return False
         # Need to account for if player is pushing the wrong color
-        if self.board.board[coord[0]][coord[1]] != self.players[player].color:
+        if self.board.board[coord[0]][coord[1]].color != self.players[player].color:
             return False
 
         # Temporary board copy to revert board to previous state if pushing off players own piece
@@ -513,47 +552,53 @@ class InvalidName(Exception):
 
 if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
-    game.make_move('Jason', (5,6), 'L')
-    game.make_move('Sunny', (6,0), 'R')
-    game.make_move('Jason', (5,5), 'L')
-    game.make_move('Sunny', (6,1), 'R')
-    game.make_move('Jason', (5,4), 'L')
-    game.make_move('Sunny', (0,5), 'B')
-    game.make_move('Jason', (5,3), 'L')
-    game.make_move('Sunny', (2,5), 'L')
-    game.make_move('Jason', (5,2), 'L')
-    game.make_move('Sunny', (2,4), 'L')
-    game.make_move('Jason', (5,0), 'R')
-    game.make_move('Sunny', (2,3), 'L')
-    game.make_move('Jason', (5, 1), 'R')
-    game.make_move('Sunny', (2,2), 'L')
-    game.make_move('Jason', (6, 6), 'L')
-    game.make_move('Sunny', (2,1), 'L')
-    game.make_move('Jason', (6, 5), 'L')
-    game.make_move('Sunny', (2,0), 'F')
-    game.make_move('Jason', (6, 3), 'F')
-    game.make_move('Sunny', (1,0), 'F')
-    game.make_move('Jason', (5, 3), 'F')
-    game.make_move('Sunny', (0,0), 'B')
-    game.make_move('Jason', (4, 3), 'F')
-    game.make_move('Sunny', (1,0), 'B')
-    game.make_move('Jason', (3, 3), 'F')
-    game.make_move('Sunny', (2,0), 'B')
-    game.make_move('Jason', (2, 3), 'F')
-    game.make_move('Sunny', (3,0), 'R')
-    game.make_move('Jason', (6, 4), 'F')
-    game.make_move('Sunny', (3,1), 'R')
-    game.make_move('Jason', (5, 4), 'F')
-    game.make_move('Sunny', (3,2), 'R')
-    game.make_move('Jason', (4, 4), 'L')
-    game.make_move('Sunny', (3,3), 'R')
-    game.make_move('Jason', (4, 3), 'L')
-    game.make_move('Sunny', (3,4), 'R')
-    game.make_move('Jason', (4, 2), 'L')
-    game.make_move('Sunny', (3,5), 'R')
-    game.get_marble_count()
+    game.make_move('Jason', (0,0), 'R')
+    game.make_move('Sunny', (1,6), 'L')
+    game.make_move('Jason', (0,1), 'B')
+    game.make_move('Sunny', (6,1), 'F')
     game.board.print_board()
-    print("Jason red: ", game.get_captured('Jason'))
-    print("Sunny red: ", game.get_captured('Sunny'))
-    print("Winner: ", game.get_winner())
-    print(game.get_marble_count())
+    # game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
+    # game.make_move('Jason', (5,6), 'L')
+    # game.make_move('Sunny', (6,0), 'R')
+    # game.make_move('Jason', (5,5), 'L')
+    # game.make_move('Sunny', (6,1), 'R')
+    # game.make_move('Jason', (5,4), 'L')
+    # game.make_move('Sunny', (0,5), 'B')
+    # game.make_move('Jason', (5,3), 'L')
+    # game.make_move('Sunny', (2,5), 'L')
+    # game.make_move('Jason', (5,2), 'L')
+    # game.make_move('Sunny', (2,4), 'L')
+    # game.make_move('Jason', (5,0), 'R')
+    # game.make_move('Sunny', (2,3), 'L')
+    # game.make_move('Jason', (5, 1), 'R')
+    # game.make_move('Sunny', (2,2), 'L')
+    # game.make_move('Jason', (6, 6), 'L')
+    # game.make_move('Sunny', (2,1), 'L')
+    # game.make_move('Jason', (6, 5), 'L')
+    # game.make_move('Sunny', (2,0), 'F')
+    # game.make_move('Jason', (6, 3), 'F')
+    # game.make_move('Sunny', (1,0), 'F')
+    # game.make_move('Jason', (5, 3), 'F')
+    # game.make_move('Sunny', (0,0), 'B')
+    # game.make_move('Jason', (4, 3), 'F')
+    # game.make_move('Sunny', (1,0), 'B')
+    # game.make_move('Jason', (3, 3), 'F')
+    # game.make_move('Sunny', (2,0), 'B')
+    # game.make_move('Jason', (2, 3), 'F')
+    # game.make_move('Sunny', (3,0), 'R')
+    # game.make_move('Jason', (6, 4), 'F')
+    # game.make_move('Sunny', (3,1), 'R')
+    # game.make_move('Jason', (5, 4), 'F')
+    # game.make_move('Sunny', (3,2), 'R')
+    # game.make_move('Jason', (4, 4), 'L')
+    # game.make_move('Sunny', (3,3), 'R')
+    # game.make_move('Jason', (4, 3), 'L')
+    # game.make_move('Sunny', (3,4), 'R')
+    # game.make_move('Jason', (4, 2), 'L')
+    # game.make_move('Sunny', (3,5), 'R')
+    # game.get_marble_count()
+    # game.board.print_board()
+    # print("Jason red: ", game.get_captured('Jason'))
+    # print("Sunny red: ", game.get_captured('Sunny'))
+    # print("Winner: ", game.get_winner())
+    # print(game.get_marble_count())
