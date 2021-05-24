@@ -15,7 +15,6 @@ class Player:
         """
         self._name = name
         self._color = color
-        self._available_moves = set()
         self._is_turn = None
         self._red_captured = 0
         self._marbles_left = 8
@@ -66,24 +65,24 @@ class Player:
         :return: set of valid moves as tuple (row, col)
         """
         board = board.board
-
+        available_moves = set()
         for row in range(len(board)):
             for col in range(len(board[row])):
                 if board[row][col] is not None and board[row][col].color == self.color:
                     if row < 6:
                         if board[row+1][col] is None:
-                            self._available_moves.add((row+1, col))
+                            available_moves.add((row+1, col))
                     if row > 0:
                         if board[row-1][col] is None:
-                            self._available_moves.add((row-1, col))
+                            available_moves.add((row-1, col))
                     if col < 6:
                         if board[row][col+1] is None:
-                            self._available_moves.add((row, col+1))
+                            available_moves.add((row, col+1))
                     if col > 0:
                         if board[row][col-1] is None:
-                            self._available_moves.add((row, col-1))
+                            available_moves.add((row, col-1))
 
-        return self._available_moves
+        return available_moves
 
 class Marble:
     """ Represents a marble """
@@ -103,10 +102,6 @@ class Marble:
     def pos(self, new_pos):
         self._pos = new_pos
 
-    def valid_directions(self, board):
-        pass
-
-
 class WhiteMarble(Marble):
     """ A white marble"""
 
@@ -118,7 +113,6 @@ class WhiteMarble(Marble):
     @property
     def color(self):
         return self._color
-
 
 class BlackMarble(Marble):
     """ A white marble"""
