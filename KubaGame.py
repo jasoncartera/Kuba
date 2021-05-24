@@ -99,6 +99,9 @@ class Player:
 #         def valid_directions(self, board):
 #             pass
 
+class Marble:
+    pass
+
 class Board:
     """ Represents a Kuba board"""
 
