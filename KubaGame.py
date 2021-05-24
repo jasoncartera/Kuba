@@ -142,7 +142,7 @@ class Board:
 
             if col > len(self.board[0])-1:
                 pushed_off = marbles.pop()
-                col += 1
+                col -= 1
 
             for marble in marbles[::-1]:
                 self.board[coord[0]][col] = marble
@@ -287,9 +287,6 @@ class KubaGame:
             return self.player_a.name
         elif self.player_b.is_turn:
             return self.player_b.name
-
-    def change_turn(self):
-        pass
 
     def make_move(self, player, coord, dir):
         """
@@ -471,11 +468,9 @@ class KubaGame:
         :param player: name of a player
         :return: How many Red marbles the given player has captured
         """
-        if self.player_a.name == player:
-            return self.player_a.red_captured
-        elif self.player_b.name == player:
-            return self.player_b.red_captured
-        else:
+        try:
+            return self.players[player].red_captured
+        except KeyError:
             raise InvalidName
 
     def get_marble(self, coords):
@@ -515,13 +510,47 @@ class InvalidName(Exception):
 
 if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
-    print(game.get_marble_count())
-    print(game.get_marble((4,4)))
     game.make_move('Jason', (5,6), 'L')
     game.make_move('Sunny', (6,0), 'R')
     game.make_move('Jason', (5,5), 'L')
     game.make_move('Sunny', (6,1), 'R')
     game.make_move('Jason', (5,4), 'L')
+    game.make_move('Sunny', (0,5), 'B')
+    game.make_move('Jason', (5,3), 'L')
+    game.make_move('Sunny', (2,5), 'L')
+    game.make_move('Jason', (5,2), 'L')
+    game.make_move('Sunny', (2,4), 'L')
+    game.make_move('Jason', (5,0), 'R')
+    game.make_move('Sunny', (2,3), 'L')
+    game.make_move('Jason', (5, 1), 'R')
+    game.make_move('Sunny', (2,2), 'L')
+    game.make_move('Jason', (6, 6), 'L')
+    game.make_move('Sunny', (2,1), 'L')
+    game.make_move('Jason', (6, 5), 'L')
+    game.make_move('Sunny', (2,0), 'F')
+    game.make_move('Jason', (6, 3), 'F')
+    game.make_move('Sunny', (1,0), 'F')
+    game.make_move('Jason', (5, 3), 'F')
+    game.make_move('Sunny', (0,0), 'B')
+    game.make_move('Jason', (4, 3), 'F')
+    game.make_move('Sunny', (1,0), 'B')
+    game.make_move('Jason', (3, 3), 'F')
+    game.make_move('Sunny', (2,0), 'B')
+    game.make_move('Jason', (2, 3), 'F')
+    game.make_move('Sunny', (3,0), 'R')
+    game.make_move('Jason', (6, 4), 'F')
+    game.make_move('Sunny', (3,1), 'R')
+    game.make_move('Jason', (5, 4), 'F')
+    game.make_move('Sunny', (3,2), 'R')
+    game.make_move('Jason', (4, 4), 'L')
+    game.make_move('Sunny', (3,3), 'R')
+    game.make_move('Jason', (4, 3), 'L')
+    game.make_move('Sunny', (3,4), 'R')
+    game.make_move('Jason', (4, 2), 'L')
+    game.make_move('Sunny', (3,5), 'R')
     game.get_marble_count()
     game.board.print_board()
+    print("Jason red: ", game.get_captured('Jason'))
+    print("Sunny red: ", game.get_captured('Sunny'))
+    print("Winner: ", game.get_winner())
     print(game.get_marble_count())
