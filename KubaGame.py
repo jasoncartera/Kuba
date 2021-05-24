@@ -304,14 +304,6 @@ class KubaGame:
             self.board.board = previous_board
             return False
 
-        # Update player turns after making the move
-        if player == self.player_a.name:
-            self.player_a.is_turn = False
-            self.player_b.is_turn = True
-        else:
-            self.player_a.is_turn = True
-            self.player_b.is_turn = False
-
         # Update marbles on board
         if captured_marble == 'R':
             self.players[player].update_red_captured()
@@ -320,6 +312,13 @@ class KubaGame:
         if self.player_b.is_turn and captured_marble == self.player_a.color:
             self.player_a.update_marbles_left()
 
+        # Update player turns after making the move
+        if player == self.player_a.name:
+            self.player_a.is_turn = False
+            self.player_b.is_turn = True
+        else:
+            self.player_a.is_turn = True
+            self.player_b.is_turn = False
 
         return True
 
@@ -503,15 +502,11 @@ if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
     print(game.get_marble_count())
     print(game.get_marble((4,4)))
-    game.make_move('Jason', (1,0), 'R')
-    game.make_move('Sunny', (0,6), 'L')
-    game.make_move('Jason', (1,2), 'B')
-    game.make_move('Sunny', (0, 5), 'L')
-    game.make_move('Jason', (2,2), 'B')
-    game.make_move('Sunny', (1,6), 'L')
-    game.make_move('Jason', (3,2), 'B')
-    game.make_move('Sunny', (1,5), 'L')
     game.make_move('Jason', (5,6), 'L')
-    game.make_move('Sunny', (6, 0), 'R')
+    game.make_move('Sunny', (6,0), 'R')
+    game.make_move('Jason', (5,5), 'L')
+    game.make_move('Sunny', (6,1), 'R')
+    game.make_move('Jason', (5,4), 'L')
+    game.get_marble_count()
     game.board.print_board()
     print(game.get_marble_count())
