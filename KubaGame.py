@@ -69,7 +69,7 @@ class Player:
 
         for row in range(len(board)):
             for col in range(len(board[row])):
-                if board[row][col] == self.color:
+                if board[row][col].color == self.color:
                     if row < 6:
                         if board[row+1][col] is None:
                             self._available_moves.add((row+1, col))
@@ -373,20 +373,20 @@ class KubaGame:
         # If we made it here, update the ko rule move and make the move
         self.update_ko_rule((coord, dir))
 
-        # Make the move - Need to update captures and marble losses
+        # Make the move and save captured marble in captured_marble (Marble object or None)
         captured_marble = self.board.update_board(coord, dir)
 
         # If player captured their own marble, revert board back to before the move was made and return False
-        if captured_marble == self.players[player].color:
+        if captured_marble.color == self.players[player].color:
             self.board.board = previous_board
             return False
 
         # Update marble counts
-        if captured_marble == 'R':
+        if captured_marble.color == 'R':
             self.players[player].update_red_captured()
-        if self.player_a.is_turn and captured_marble == self.player_b.color:
+        if self.player_a.is_turn and captured_marble.color == self.player_b.color:
             self.player_b.update_marbles_left()
-        if self.player_b.is_turn and captured_marble == self.player_a.color:
+        if self.player_b.is_turn and captured_marble.color == self.player_a.color:
             self.player_a.update_marbles_left()
 
         # Update player turns after making the move
@@ -524,7 +524,7 @@ class KubaGame:
         if self.board.board[coords[0]][coords[1]] is None:
             return 'X'
         else:
-            return self.board.board[coords[0]][coords[1]]
+            return self.board.board[coords[0]][coords[1]].color
 
     def get_marble_count(self):
         """
