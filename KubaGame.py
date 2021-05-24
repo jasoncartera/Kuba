@@ -58,8 +58,21 @@ class Player:
         self._red_captured += 1
 
     def available_moves(self):
-        #TODO determine set of moves that a player can make
-        pass
+        valid_moves = set()
+
+# #Not using right now...
+# class Marble:
+#     """ Represents a marble"""
+#
+#     def __init__(self, start_pos, color):
+#         """
+#         _valid_directions is a dictionary of all valid directions for a marble
+#         """
+#         self._start_pos = start_pos
+#         self._valid_directions = dict()
+#
+#         def valid_directions(self, board):
+#             pass
 
 class Board:
     """ Represents a Kuba board"""
@@ -281,6 +294,7 @@ class KubaGame:
         # If it is not the players turn
         if player != self.get_current_turn():
             return False
+        # If dir is not valid
         if dir not in self.valid_move_dir(coord):
             return False
         # If move would be the opposite of last move return false
@@ -290,7 +304,7 @@ class KubaGame:
         if self.board.board[coord[0]][coord[1]] != self.players[player].color:
             return False
 
-        # Use to revert board to previous state if pushing off players own piece
+        # Temporary board copy to revert board to previous state if pushing off players own piece
         previous_board = [x[:] for x in self.board.board]
 
         # If we made it here, update the ko rule move and make the move
@@ -299,12 +313,12 @@ class KubaGame:
         # Make the move - Need to update captures and marble losses
         captured_marble = self.board.update_board(coord, dir)
 
-        #Revert board back to before the move was made and return False
+        # If player captured their own marble, revert board back to before the move was made and return False
         if captured_marble == self.players[player].color:
             self.board.board = previous_board
             return False
 
-        # Update marbles on board
+        # Update marble counts
         if captured_marble == 'R':
             self.players[player].update_red_captured()
         if self.player_a.is_turn and captured_marble == self.player_b.color:
@@ -422,6 +436,7 @@ class KubaGame:
 
         # TODO Need to account for if there are no legal moves left for the player
 
+
     def get_captured(self, player):
         """
 
@@ -464,34 +479,6 @@ class KubaGame:
         # Since the Board class doesn't care about how many marbles there are, I thought it was more
         # appropriate to have the Player class keep track of this.
         return (player_white.marbles_left, player_black.marbles_left, 13-player_black.red_captured-player_white.red_captured)
-
-#Not using these right now...
-class Marble:
-    """ Represents a marble"""
-
-    def __init__(self):
-        """
-        _valid_directions is a dictionary of all valid directions for a marble
-        """
-        self._valid_directions = dict()
-
-class RedMarble(Marble):
-    """ Represents a red marble"""
-    def __init__(self):
-        super().__init__()
-        self._color = 'R'
-
-class BlackMarble(Marble):
-    """ Represents a black marble"""
-    def __init__(self):
-        super().__init__()
-        self._color = 'B'
-
-class WhiteMarble(Marble):
-    """ Represents a white marble"""
-    def __init__(self):
-        super().__init__()
-        self._color = 'W'
 
 
 class InvalidName(Exception):
