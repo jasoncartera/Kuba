@@ -541,6 +541,9 @@ class KubaGame:
 
 class InvalidName(Exception):
     """ Raised if an invalid player name is used"""
+    pass
+
+if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
     game.make_move('Jason', (5,6), 'L')
     game.make_move('Sunny', (6,0), 'R')
