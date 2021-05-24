@@ -15,6 +15,7 @@ class Player:
         """
         self._name = name
         self._color = color
+        self._available_moves = set()
         self._is_turn = None
         self._red_captured = 0
         self._marbles_left = 8
@@ -65,23 +66,21 @@ class Player:
         :return: set of valid moves as tuple (row, col)
         """
         board = board.board
-        available_moves = set()
 
         for row in range(len(board)):
             for col in range(len(board[row])):
                 if board[row][col] is not None and board[row][col].color == self.color:
                     if row < 6:
                         if board[row+1][col] is None:
-                            available_moves.add((row, col))
+                            self._available_moves.add((row+1, col))
                     if row > 0:
                         if board[row-1][col] is None:
-                            available_moves.add((row, col))
+                            self._available_moves.add((row-1, col))
                     if col < 6:
                         if board[row][col+1] is None:
-                            available_moves.add((row, col))
+                            self._available_moves.add((row, col+1))
                     if col > 0:
                         if board[row][col-1] is None:
-<<<<<<< HEAD
                             self._available_moves.add((row, col-1))
 
         return self._available_moves
@@ -144,11 +143,6 @@ class RedMarble(Marble):
     @property
     def color(self):
         return self._color
-=======
-                            available_moves.add((row, col))
-
-        return available_moves
->>>>>>> e71ab55366ebdfbe005ca806ffa7667bc3cb3cc7
 
 class Board:
     """ Represents a Kuba board"""
@@ -497,13 +491,13 @@ class KubaGame:
         elif self.player_b.red_captured == 7:
             return self.player_b.name
         elif self.player_a.marbles_left == 0 and self.player_b.marbles_left > 0:
-            return self.player_b.name
+            return self.player_b
         elif self.player_b.marbles_left == 0 and self.player_a.marbles_left > 0:
-            return self.player_a.name
-        elif len(self.player_a.available_moves(self.board)) == 0:
-            return self.player_b.name
-        elif len(self.player_b.available_moves(self.board)) == 0:
-            return self.player_a.name
+            return self.player_a
+        elif self.player_a.available_moves(self.board) is False:
+            return self.player_b
+        elif self.player_b.available_moves(self.board) is False:
+            return self.player_a
         else:
             return None
 
@@ -553,10 +547,45 @@ class KubaGame:
 
 class InvalidName(Exception):
     """ Raised if an invalid player name is used"""
-    pass
-
-if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
+    game.make_move('Jason', (5,6), 'L')
+    game.make_move('Sunny', (6,0), 'R')
+    game.make_move('Jason', (5,5), 'L')
+    game.make_move('Sunny', (6,1), 'R')
+    game.make_move('Jason', (5,4), 'L')
+    game.make_move('Sunny', (0,5), 'B')
+    game.make_move('Jason', (5,3), 'L')
+    game.make_move('Sunny', (2,5), 'L')
+    game.make_move('Jason', (5,2), 'L')
+    game.make_move('Sunny', (2,4), 'L')
+    game.make_move('Jason', (5,0), 'R')
+    game.make_move('Sunny', (2,3), 'L')
+    game.make_move('Jason', (5, 1), 'R')
+    game.make_move('Sunny', (2,2), 'L')
+    game.make_move('Jason', (6, 6), 'L')
+    game.make_move('Sunny', (2,1), 'L')
+    game.make_move('Jason', (6, 5), 'L')
+    game.make_move('Sunny', (2,0), 'F')
+    game.make_move('Jason', (6, 3), 'F')
+    game.make_move('Sunny', (1,0), 'F')
+    game.make_move('Jason', (5, 3), 'F')
+    game.make_move('Sunny', (0,0), 'B')
+    game.make_move('Jason', (4, 3), 'F')
+    game.make_move('Sunny', (1,0), 'B')
+    game.make_move('Jason', (3, 3), 'F')
+    game.make_move('Sunny', (2,0), 'B')
+    game.make_move('Jason', (2, 3), 'F')
+    game.make_move('Sunny', (3,0), 'R')
+    game.make_move('Jason', (6, 4), 'F')
+    game.make_move('Sunny', (3,1), 'R')
+    game.make_move('Jason', (5, 4), 'F')
+    game.make_move('Sunny', (3,2), 'R')
+    game.make_move('Jason', (4, 4), 'L')
+    game.make_move('Sunny', (3,3), 'R')
+    game.make_move('Jason', (4, 3), 'L')
+    game.make_move('Sunny', (3,4), 'R')
+    game.make_move('Jason', (4, 2), 'L')
+    game.make_move('Sunny', (3,5), 'R')
     game.get_marble_count()
     game.board.print_board()
     print("Jason red: ", game.get_captured('Jason'))
