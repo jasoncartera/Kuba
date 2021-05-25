@@ -13,10 +13,14 @@ class Game:
     """
     def __init__(self, playera, playerb):
         self._game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
+        self._graphics = Graphics()
 
     @property
     def game(self):
         return self._game
+
+    def event_loop(self):
+        """"""
 
 class Graphics:
     """ Graphics for the game """
@@ -58,7 +62,14 @@ class Graphics:
         """
         Draws the marbles from board object
         """
-        # TODO position marbles in each square from the game.game.board
+        for i in range(7):
+            for j in range(7):
+                if board.board[i][j] != None:
+                    pygame.draw.circle(self._screen, board.board[i][j].rgb, (i * self._marble_size + self._marble_size / 2, j * self._marble_size + self._marble_size / 2),
+                                       self._marble_size / 2.5)
+
+    def display_score(self, game):
+        pass
 
 def main():
     graphic = Graphics()

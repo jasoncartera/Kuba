@@ -109,10 +109,15 @@ class WhiteMarble(Marble):
         """ Inits a white marble """
         super().__init__(pos)
         self._color = 'W'
+        self._rgb =(255, 255, 255)
 
     @property
     def color(self):
         return self._color
+
+    @property
+    def rgb(self):
+        return self._rgb
 
 class BlackMarble(Marble):
     """ A white marble"""
@@ -121,10 +126,15 @@ class BlackMarble(Marble):
         """ Inits a black marble """
         super().__init__(pos)
         self._color = 'B'
-        
+        self._rgb = (0, 0, 0)
+
     @property
     def color(self):
         return self._color
+
+    @property
+    def rgb(self):
+        return self._rgb
 
 class RedMarble(Marble):
     """ A white marble"""
@@ -133,10 +143,15 @@ class RedMarble(Marble):
         """ Inits a red marble """
         super().__init__(pos)
         self._color = 'R'
+        self._rgb = (255, 0, 0)
         
     @property
     def color(self):
         return self._color
+
+    @property
+    def rgb(self):
+        return self._rgb
 
 class Board:
     """ Represents a Kuba board"""
