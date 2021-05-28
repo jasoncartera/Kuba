@@ -1,6 +1,7 @@
 # Author: Jason Carter
 # Date: 5/22/2021
 # Description: Implementation of the Kuba game.
+import copy
 
 class Player:
     """ Represents a player"""
@@ -58,7 +59,7 @@ class Player:
         """ Updates the number of captured red marbles by one"""
         self._red_captured += 1
 
-    def available_moves(self, board):
+    def available_moves(self, board, ko_rule):
         """
         Determines moves a player has avalaible
         :param board: KubaGame.Board
@@ -71,17 +72,19 @@ class Player:
                 if board[row][col] is not None and board[row][col].color == self.color:
                     if row < 6:
                         if board[row+1][col] is None:
-                            available_moves.add((row+1, col))
+                            available_moves.add(((row+1, col), 'F'))
                     if row > 0:
                         if board[row-1][col] is None:
-                            available_moves.add((row-1, col))
+                            available_moves.add(((row-1, col), 'B'))
                     if col < 6:
                         if board[row][col+1] is None:
-                            available_moves.add((row, col+1))
+                            available_moves.add(((row, col+1), 'L'))
                     if col > 0:
                         if board[row][col-1] is None:
-                            available_moves.add((row, col-1))
+                            available_moves.add(((row, col-1), 'R'))
 
+        if ko_rule in available_moves:
+            available_moves.remove(ko_rule)
         return available_moves
 
 class Marble:
@@ -250,7 +253,7 @@ class Board:
         if dir == 'F':
             row = coord[0]
             marbles = []
-            while row < len(self.board[0]) and self.board[row][coord[1]] is not None:
+            while row >= 0 and self.board[row][coord[1]] is not None:
                 marbles.append(self.board[row][coord[1]])
                 row -= 1
             for marble in marbles:
@@ -377,7 +380,7 @@ class KubaGame:
             return False
 
         # Temporary board copy to revert board to previous state if pushing off players own piece
-        previous_board = [x[:] for x in self.board.board]
+        previous_board = copy.deepcopy(self.board.board)
 
         # If we made it here, update the ko rule move and make the move
         self.update_ko_rule((coord, dir))
@@ -496,21 +499,31 @@ class KubaGame:
         :return: returns the name of the winning player. If no winner, returns None
         """
         if self.player_a.red_captured == 7:
+            self.player_a.is_turn = None
+            self.player_b.is_turn = None
             return self.player_a.name
         elif self.player_b.red_captured == 7:
+            self.player_a.is_turn = None
+            self.player_b.is_turn = None
             return self.player_b.name
         elif self.player_a.marbles_left == 0 and self.player_b.marbles_left > 0:
+            self.player_a.is_turn = None
+            self.player_b.is_turn = None
             return self.player_b
         elif self.player_b.marbles_left == 0 and self.player_a.marbles_left > 0:
+            self.player_a.is_turn = None
+            self.player_b.is_turn = None
             return self.player_a
-        elif self.player_a.available_moves(self.board) is False:
+        elif self.player_a.available_moves(self.board, self.ko_rule_move) is False:
+            self.player_a.is_turn = None
+            self.player_b.is_turn = None
             return self.player_b
-        elif self.player_b.available_moves(self.board) is False:
+        elif self.player_b.available_moves(self.board, self.ko_rule_move) is False:
+            self.player_a.is_turn = None
+            self.player_b.is_turn = None
             return self.player_a
         else:
             return None
-
-
 
     def get_captured(self, player):
         """
@@ -560,44 +573,10 @@ class InvalidName(Exception):
 
 if __name__ == '__main__':
     game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
-    game.make_move('Jason', (5,6), 'L')
-    game.make_move('Sunny', (6,0), 'R')
-    game.make_move('Jason', (5,5), 'L')
-    game.make_move('Sunny', (6,1), 'R')
-    game.make_move('Jason', (5,4), 'L')
-    game.make_move('Sunny', (0,5), 'B')
-    game.make_move('Jason', (5,3), 'L')
-    game.make_move('Sunny', (2,5), 'L')
-    game.make_move('Jason', (5,2), 'L')
-    game.make_move('Sunny', (2,4), 'L')
-    game.make_move('Jason', (5,0), 'R')
-    game.make_move('Sunny', (2,3), 'L')
-    game.make_move('Jason', (5, 1), 'R')
-    game.make_move('Sunny', (2,2), 'L')
-    game.make_move('Jason', (6, 6), 'L')
-    game.make_move('Sunny', (2,1), 'L')
-    game.make_move('Jason', (6, 5), 'L')
-    game.make_move('Sunny', (2,0), 'F')
-    game.make_move('Jason', (6, 3), 'F')
-    game.make_move('Sunny', (1,0), 'F')
-    game.make_move('Jason', (5, 3), 'F')
-    game.make_move('Sunny', (0,0), 'B')
-    game.make_move('Jason', (4, 3), 'F')
-    game.make_move('Sunny', (1,0), 'B')
-    game.make_move('Jason', (3, 3), 'F')
-    game.make_move('Sunny', (2,0), 'B')
-    game.make_move('Jason', (2, 3), 'F')
-    game.make_move('Sunny', (3,0), 'R')
-    game.make_move('Jason', (6, 4), 'F')
-    game.make_move('Sunny', (3,1), 'R')
-    game.make_move('Jason', (5, 4), 'F')
-    game.make_move('Sunny', (3,2), 'R')
-    game.make_move('Jason', (4, 4), 'L')
-    game.make_move('Sunny', (3,3), 'R')
-    game.make_move('Jason', (4, 3), 'L')
-    game.make_move('Sunny', (3,4), 'R')
-    game.make_move('Jason', (4, 2), 'L')
-    game.make_move('Sunny', (3,5), 'R')
+    game.make_move('Jason', (1,1), 'F')
+    game.make_move('Jason', (0,0), 'R')
+
+
     game.get_marble_count()
     game.board.print_board()
     print("Jason red: ", game.get_captured('Jason'))
