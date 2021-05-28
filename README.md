@@ -7,4 +7,7 @@ This is an extension of the portfolio project for CS162 at Oregon State Universi
 
 The code for the graphics is avalaible, and I will release the game logic after the end of term. Here is a short video:
 
-<img src="https://github.com/jasoncartera/Kuba/blob/main/Kubavideo.mov" width="600" height="700">
+<video width"
+https://user-images.githubusercontent.com/17489220/120035995-4c4c0100-bfb4-11eb-91b8-3f6b58aa8c32.mov
+
+
