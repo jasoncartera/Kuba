@@ -2,6 +2,7 @@ import pygame
 import sys
 from pygame.locals import *
 from KubaGame import KubaGame, Player
+import random
 
 ## COLORS ##
 GRAY = (176, 179, 184)
@@ -68,6 +69,15 @@ class Game:
         """
         Implements the game logic and events triggered and updates the board
         """
+        random.seed()
+        start = random.randint(0,1)
+        if self.game.get_current_turn() is None:
+            if start == 0:
+                current_player = self._playerw
+                self.game.players[self._playerw[0]].is_turn = True
+            else:
+                current_player = self._playerb
+                self.game.players[self._playerb[0]].is_turn = True
 
         for event in pygame.event.get():
 
@@ -79,9 +89,7 @@ class Game:
                 self.marble_target = self._graphics.board_coords(pygame.mouse.get_pos())
             elif event.type == pygame.MOUSEBUTTONUP:
                 self.marble_dir = self._graphics.board_coords(pygame.mouse.get_pos())
-                if self.game.get_current_turn() is None:
-                    current_player = self._playerw
-                elif self.game.player_a.is_turn:
+                if self.game.player_a.is_turn:
                     current_player = self._playerw
                 else:
                     current_player = self._playerb
@@ -195,7 +203,7 @@ class Graphics:
         """
         font_obj = pygame.font.SysFont('arial',20)
 
-        turn_text = font_obj.render(turn, True, (0,0,0))
+        turn_text = font_obj.render(turn + "'s move", True, (0,0,0))
         turn_text_rect = turn_text.get_rect()
         turn_text_rect.move_ip(50, 640)
         self._screen.blit(turn_text, turn_text_rect)
