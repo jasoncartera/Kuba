@@ -498,28 +498,16 @@ class KubaGame:
         :return: returns the name of the winning player. If no winner, returns None
         """
         if self.player_a.red_captured == 7:
-            self.player_a.is_turn = None
-            self.player_b.is_turn = None
             return self.player_a.name
         elif self.player_b.red_captured == 7:
-            self.player_a.is_turn = None
-            self.player_b.is_turn = None
             return self.player_b.name
         elif self.player_a.marbles_left == 0 and self.player_b.marbles_left > 0:
-            self.player_a.is_turn = None
-            self.player_b.is_turn = None
             return self.player_b.name
         elif self.player_b.marbles_left == 0 and self.player_a.marbles_left > 0:
-            self.player_a.is_turn = None
-            self.player_b.is_turn = None
             return self.player_a.name
         elif len(self.player_a.available_moves(self.board, self.ko_rule_move)) == 0:
-            self.player_a.is_turn = None
-            self.player_b.is_turn = None
             return self.player_b.name
         elif len(self.player_b.available_moves(self.board, self.ko_rule_move)) == 0:
-            self.player_a.is_turn = None
-            self.player_b.is_turn = None
             return self.player_a.name
         else:
             return None

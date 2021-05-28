@@ -203,17 +203,17 @@ class Graphics:
         """
         font_obj = pygame.font.SysFont('arial',20)
 
-        turn_text = font_obj.render(turn, True, (0,0,0))
+        turn_text = font_obj.render(turn + "'s turn", True, (0,0,0))
         turn_text_rect = turn_text.get_rect()
         turn_text_rect.move_ip(50, 640)
         self._screen.blit(turn_text, turn_text_rect)
 
-        playerb_text = font_obj.render("Black " + str(playerb_captured) , True, (0,0,0))
+        playerb_text = font_obj.render("Black " + str(playerb_captured), True, (0,0,0))
         playerb_text_rect = playerb_text.get_rect()
-        playerb_text_rect.move_ip(300, 640)
+        playerb_text_rect.move_ip(280, 640)
         self._screen.blit(playerb_text, playerb_text_rect)
 
-        playerw_text = font_obj.render("White " + str(playerw_captured) , True, (0,0,0))
+        playerw_text = font_obj.render("White " + str(playerw_captured), True, (0,0,0))
         playerw_text_rect = playerw_text.get_rect()
         playerw_text_rect.move_ip(450, 640)
         self._screen.blit(playerw_text, playerw_text_rect)
@@ -221,7 +221,7 @@ class Graphics:
         if winner:
             win_player = font_obj.render(str(winner) + " Wins!", True, (0, 0, 0))
             win_player_text_rect = win_player.get_rect()
-            win_player_text_rect.move_ip(50, 640)
+            win_player_text_rect.move_ip(250, 610)
             self._screen.blit(win_player, win_player_text_rect)
 
 def main():
