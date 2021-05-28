@@ -71,7 +71,7 @@ class Game:
         """
         random.seed()
         start = random.randint(0,1)
-        if self.game.get_current_turn() is None:
+        if self.game.get_current_turn() is None and self.game.get_winner() is None:
             if start == 0:
                 current_player = self._playerw
                 self.game.players[self._playerw[0]].is_turn = True
@@ -203,7 +203,7 @@ class Graphics:
         """
         font_obj = pygame.font.SysFont('arial',20)
 
-        turn_text = font_obj.render(turn + "'s move", True, (0,0,0))
+        turn_text = font_obj.render(turn, True, (0,0,0))
         turn_text_rect = turn_text.get_rect()
         turn_text_rect.move_ip(50, 640)
         self._screen.blit(turn_text, turn_text_rect)
