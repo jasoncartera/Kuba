@@ -513,11 +513,11 @@ class KubaGame:
             self.player_a.is_turn = None
             self.player_b.is_turn = None
             return self.player_a.name
-        elif self.player_a.available_moves(self.board, self.ko_rule_move) is False:
+        elif len(self.player_a.available_moves(self.board, self.ko_rule_move)) == 0:
             self.player_a.is_turn = None
             self.player_b.is_turn = None
             return self.player_b.name
-        elif self.player_b.available_moves(self.board, self.ko_rule_move) is False:
+        elif len(self.player_b.available_moves(self.board, self.ko_rule_move)) == 0:
             self.player_a.is_turn = None
             self.player_b.is_turn = None
             return self.player_a.name
@@ -570,15 +570,4 @@ class InvalidName(Exception):
     """ Raised if an invalid player name is used"""
     pass
 
-if __name__ == '__main__':
-    game = KubaGame(('Jason', 'W'), ('Sunny', 'B'))
-    game.make_move('Jason', (1,1), 'F')
-    game.make_move('Jason', (0,0), 'R')
 
-
-    game.get_marble_count()
-    game.board.print_board()
-    print("Jason red: ", game.get_captured('Jason'))
-    print("Sunny red: ", game.get_captured('Sunny'))
-    print("Winner: ", game.get_winner())
-    print(game.get_marble_count())
